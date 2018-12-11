@@ -6,7 +6,6 @@ import {
   CardHeader,
   Card,
   CardContent,
-  FormLabel,
   FormControl,
   RadioGroup,
   FormControlLabel,
@@ -14,6 +13,7 @@ import {
   TextField
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
+import widgetConf from "../../../resources/widgetConf.json";
 
 const styles = {
   title: {
@@ -44,17 +44,29 @@ export class SettingsModal extends Component {
             border: "1px solid black",
             padding: "10px",
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
             margin: "10px"
           }}
         >
-          <TextField id="outlined-name" label="Name" variant="outlined" />
+          <TextField
+            id="outlined-name"
+            label="Name"
+            variant="outlined"
+            style={{ paddingRight: "10px" }}
+          />
           <TextField id="outlined-name" label="Value" variant="outlined" />
 
-          <Button color={"primary"}>Publish</Button>
+          <Button size={"small"} color={"primary"}>
+            Publish
+          </Button>
         </div>
       </div>
     );
+  };
+
+  changeTheme = theme => {
+    this.setState({ theme });
+    this.props.changeTheme(theme);
   };
 
   render() {
@@ -94,6 +106,7 @@ export class SettingsModal extends Component {
                 color: "white",
                 marginLeft: "30px"
               }}
+              onClick={() => this.changeTheme("dark")}
             >
               Dark Theme
             </Button>
@@ -105,11 +118,15 @@ export class SettingsModal extends Component {
                 color: "#18242a",
                 marginLeft: "30px"
               }}
+              onClick={() => this.changeTheme("light")}
             >
               Light Theme
             </Button>
             <hr />
-            <div style={{ marginTop: "10px" }}>
+            <div
+              style={{ marginTop: "10px" }}
+              hidden={widgetConf.configs.pubsub}
+            >
               <Typography variant={"h6"}>Subscribing Model</Typography>
               <FormControl component="fieldset" style={{ marginLeft: "20px" }}>
                 <RadioGroup

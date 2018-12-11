@@ -6,13 +6,15 @@ import {
   createMuiTheme,
   IconButton,
   Fab,
-  Tooltip
+  Tooltip,
+  Typography
 } from "@material-ui/core";
 import React, { Component } from "react";
 import widgetConf from "../../../resources/widgetConf.json";
 import Resizable from "re-resizable";
-import DeleteIcon from "@material-ui/icons/Delete";
 import TuneIcon from "@material-ui/icons/Tune";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import TabIcon from "@material-ui/icons/Tab";
 import SettingsModal from "../Settings/SettingsModal.jsx";
 
 const Theme = createMuiTheme({
@@ -24,29 +26,18 @@ const Theme = createMuiTheme({
     },
     MuiCardHeader: {
       root: {
-        height: "10px"
+        height: "10px",
+        border: "1px solid black"
       },
       title: {
         fontSize: "0.5rem",
-        color: "#ffffff",
-        height: "10px"
+        color: "#ffffff"
       }
     },
     MuiCardContent: {
       root: {
-        height: window.innerHeight - 108
-      }
-    },
-    MuiExpansionPanelSummary: {
-      root: {
-        backgroundColor: "#1a262e"
-      },
-      content: {
-        color: "#ffffff",
-        fontSize: "0.8rem"
-      },
-      expandIcon: {
-        color: "#ffffff"
+        height: window.innerHeight - 108,
+        border: "1px solid black"
       }
     }
   }
@@ -55,7 +46,12 @@ const Theme = createMuiTheme({
 class Frame extends Component {
   state = {
     glContainer: undefined,
-    modalView: false
+    modalView: false,
+    maximizeButtonColor: "white",
+    exportButtonColor: "white",
+    buttonBaseColor: "white",
+    theme: "dark",
+    defaultContainer: undefined
   };
 
   resizingCardContent = () => {
@@ -74,6 +70,11 @@ class Frame extends Component {
         width: this.cardContent.clientWidth,
         height: this.cardContent.clientHeight,
         on: event => {}
+      },
+      defaultContainerSize: {
+        width: this.cardContent.clientWidth,
+        height: this.cardContent.clientHeight,
+        on: event => {}
       }
     });
   }
@@ -84,20 +85,43 @@ class Frame extends Component {
       : this.setState({ modalView: true });
   };
 
+  changeTheme = theme => {
+    theme === "dark"
+      ? this.setState({
+          theme,
+          exportButtonColor: "white",
+          maximizeButtonColor: "white",
+          buttonBaseColor: "white"
+        })
+      : this.setState({
+          theme,
+          exportButtonColor: "black",
+          maximizeButtonColor: "black",
+          buttonBaseColor: "black"
+        });
+  };
+
   render() {
     console.log("frame states", this.state);
 
     //Mapping a new prop to the props.children
     const childrenWithProp = React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
-        glContainer: this.state.glContainer
+        glContainer: this.state.glContainer,
+        muiTheme: {
+          name: this.state.theme
+        }
       });
     });
 
     return (
       <MuiThemeProvider theme={Theme}>
         <Resizable
+          ref={c => {
+            this.resizable = c;
+          }}
           onResizeStop={(e, direction, ref, d) => {
+            console.log("resizing stopped");
             this.setState({
               glContainer: {
                 width: this.state.glContainer.width + d.width,
@@ -111,19 +135,82 @@ class Frame extends Component {
             border: "solid 1px #ddd",
             background: "#f0f0f0",
             flexDirection: "column"
-            // position: "absolute"
           }}
-          maxWidth={"99.5%"}
         >
           <Card>
             <CardHeader
-              title={widgetConf.name.toUpperCase()}
-              style={{
-                height: "10px",
-                fontSize: "1em",
-                backgroundColor: "#2a353b",
-                boxShadow: "5px 10px #ffffff;"
-              }}
+              title={
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}
+                >
+                  <Typography
+                    style={
+                      this.state.theme === "dark"
+                        ? {
+                            color: "white",
+                            fontSize: "0.5rem",
+                            float: "left"
+                          }
+                        : {
+                            color: "black",
+                            fontSize: "0.5rem",
+                            float: "left"
+                          }
+                    }
+                  >
+                    {widgetConf.name.toUpperCase()}
+                  </Typography>
+                  <div
+                    style={{
+                      float: "right",
+                      display: "inline",
+                      fontSize: "1rem"
+                    }}
+                  >
+                    <IconButton
+                      style={{ color: this.state.exportButtonColor }}
+                      onMouseEnter={() =>
+                        this.setState({ exportButtonColor: "#ee6c09" })
+                      }
+                      onMouseLeave={() =>
+                        this.setState({
+                          exportButtonColor: this.state.buttonBaseColor
+                        })
+                      }
+                    >
+                      <SaveAltIcon />
+                    </IconButton>
+                    <IconButton
+                      style={{ color: this.state.maximizeButtonColor }}
+                      onMouseEnter={() =>
+                        this.setState({ maximizeButtonColor: "#ee6c09" })
+                      }
+                      onMouseLeave={() =>
+                        this.setState({
+                          maximizeButtonColor: this.state.buttonBaseColor
+                        })
+                      }
+                      onClick={() => {
+                        this.resizable.updateSize({
+                          width: "100%",
+                          height: "100%"
+                        });
+                      }}
+                    >
+                      <TabIcon />
+                    </IconButton>
+                  </div>
+                </div>
+              }
+              style={
+                this.state.theme === "dark"
+                  ? { backgroundColor: "#1f2c33" }
+                  : { backgroundColor: "#ffffff" }
+              }
             />
             <div
               ref={content => {
@@ -131,13 +218,24 @@ class Frame extends Component {
               }}
             >
               <CardContent
-                style={{ padding: "0px", backgroundColor: "#1a262e" }}
+                style={
+                  this.state.theme === "dark"
+                    ? {
+                        padding: "0px",
+                        backgroundColor: "#1a262e"
+                      }
+                    : {
+                        padding: "0px",
+                        backgroundColor: "#ffffff"
+                      }
+                }
               >
                 {childrenWithProp}
               </CardContent>
             </div>
           </Card>
         </Resizable>
+
         <Tooltip title={"Options"}>
           <Fab
             size="small"
@@ -159,6 +257,7 @@ class Frame extends Component {
           <SettingsModal
             open={this.state.modalView}
             modalClose={this.toggleConfigMenu}
+            changeTheme={this.changeTheme}
           />
         )}
       </MuiThemeProvider>

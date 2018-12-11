@@ -26,7 +26,7 @@ export class MyWidget extends Widget {
     DataSet: [],
     hasError: false,
     errorMsg: "",
-    theme: "light",
+    theme: "dark",
     width: window.innerWidth - 108,
     height: window.innerHeight - 108
     // width: this.props.glContainer.width,
@@ -82,6 +82,14 @@ export class MyWidget extends Widget {
         "Error in loading the data using Dashboard Widget",
         error.message
       );
+    }
+  }
+
+  componentWillUpdate() {
+    const { muiTheme } = this.props;
+    console.log("component will update", muiTheme.name);
+    if (muiTheme) {
+      this.state.theme = muiTheme.name === "dark" ? "light" : "dark";
     }
   }
 
@@ -164,12 +172,11 @@ export class MyWidget extends Widget {
                 fill: "#00C853"
               }
             ],
-            maxLength: 4,
+            maxLength: 7,
             interactiveLegend: true,
             legend: true,
             legendOrientation: "bottom",
             animate: true
-            // style: { xAxisTickAngle: 45 }
           }}
           metadata={metadata}
           data={DataSet}

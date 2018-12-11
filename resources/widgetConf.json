@@ -21,6 +21,6 @@
   },
   "chartConfigs": {
     "x_axis": "continent",
-    "y_axis": "surfaceArea"
+    "y_axis": "lifeExpectancy"
   }
 }
