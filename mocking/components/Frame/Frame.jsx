@@ -17,6 +17,35 @@ import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import TabIcon from "@material-ui/icons/Tab";
 import SettingsModal from "../Settings/SettingsModal.jsx";
 
+const style = {
+  resizableBox: {
+    border: "solid 1px #ddd",
+    background: "#f0f0f0"
+  },
+  cardHeader: {
+    height: "10%",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  titleOptionsTray: {
+    float: "right",
+    display: "inline",
+    fontSize: "1rem"
+  },
+  cardContent: {
+    padding: "0px",
+    backgroundColor: "#1a262e",
+    height: "100%",
+    border: "1px solid black"
+  },
+  optionsMenuIcon: {
+    position: "absolute",
+    right: "20px",
+    bottom: "20px",
+    color: "#ffffff"
+  }
+};
 const Theme = createMuiTheme({
   overrides: {
     MuiCard: {
@@ -33,45 +62,38 @@ const Theme = createMuiTheme({
         fontSize: "0.5rem",
         color: "#ffffff"
       }
-    },
-    MuiCardContent: {
-      root: {
-        height: window.innerHeight - 108,
-        border: "1px solid black"
-      }
     }
   }
 });
 
 class Frame extends Component {
-  state = {
-    glContainer: undefined,
-    modalView: false,
-    maximizeButtonColor: "white",
-    exportButtonColor: "white",
-    buttonBaseColor: "white",
-    theme: "dark",
-    defaultContainer: undefined
-  };
-
-  resizingCardContent = () => {
-    console.log("resized");
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      glContainer: undefined,
+      modalView: false,
+      maximizeButtonColor: "white",
+      exportButtonColor: "white",
+      buttonBaseColor: "white",
+      theme: "dark",
+      defaultContainer: undefined,
+      glContainer: { width: "100%", height: "100%", on: event => {} }
+    };
+    window.addEventListener("resize", () => {
+      console.log("resizing");
+      this.setState({
+        glContainer: {
+          width: this.cardContent.clientWidth,
+          height: this.cardContent.clientHeight,
+          on: event => {}
+        }
+      });
+    });
+  }
 
   componentDidMount() {
-    console.log(
-      "Initial height",
-      this.cardContent.clientHeight,
-      " Initial Width : ",
-      this.cardContent.clientWidth
-    );
     this.setState({
       glContainer: {
-        width: this.cardContent.clientWidth,
-        height: this.cardContent.clientHeight,
-        on: event => {}
-      },
-      defaultContainerSize: {
         width: this.cardContent.clientWidth,
         height: this.cardContent.clientHeight,
         on: event => {}
@@ -101,10 +123,25 @@ class Frame extends Component {
         });
   };
 
+  setGLContainerSize = () => {
+    this.setState(
+      {
+        glContainer: {
+          width: this.cardContent.clientWidth,
+          height: this.cardContent.clientHeight,
+          on: event => {}
+        }
+      },
+      () => {
+        console.log("setGlContainer");
+      }
+    );
+  };
+
   render() {
     console.log("frame states", this.state);
 
-    //Mapping a new prop to the props.children
+    //Mapping additional to the props.children
     const childrenWithProp = React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
         glContainer: this.state.glContainer,
@@ -122,31 +159,34 @@ class Frame extends Component {
           }}
           onResizeStop={(e, direction, ref, d) => {
             console.log("resizing stopped");
+            console.log(
+              "this.cardContent.clientWidth :",
+              this.cardContent.clientWidth
+            );
+            console.log(
+              "this.cardContent.clientHeight :",
+              this.cardContent.clientHeight
+            );
             this.setState({
               glContainer: {
-                width: this.state.glContainer.width + d.width,
-                height: this.state.glContainer.height + d.height,
+                width: this.cardContent.clientWidth,
+                height: this.cardContent.clientHeight,
                 on: event => {}
               }
             });
           }}
-          style={{
-            display: "flex",
-            border: "solid 1px #ddd",
-            background: "#f0f0f0",
-            flexDirection: "column"
+          style={style.resizableBox}
+          defaultSize={{
+            height: "100%",
+            width: "100%"
           }}
+          maxWidth={"100%"}
+          maxHeight={"100%"}
         >
-          <Card>
+          <Card style={{ height: "100%" }}>
             <CardHeader
               title={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                  }}
-                >
+                <div style={style.cardHeader}>
                   <Typography
                     style={
                       this.state.theme === "dark"
@@ -164,13 +204,7 @@ class Frame extends Component {
                   >
                     {widgetConf.name.toUpperCase()}
                   </Typography>
-                  <div
-                    style={{
-                      float: "right",
-                      display: "inline",
-                      fontSize: "1rem"
-                    }}
-                  >
+                  <div style={style.titleOptionsTray}>
                     <IconButton
                       style={{ color: this.state.exportButtonColor }}
                       onMouseEnter={() =>
@@ -199,6 +233,15 @@ class Frame extends Component {
                           width: "100%",
                           height: "100%"
                         });
+                        window.setTimeout(() => {
+                          this.setState({
+                            glContainer: {
+                              width: this.cardContent.clientWidth,
+                              height: this.cardContent.clientHeight,
+                              on: event => {}
+                            }
+                          });
+                        }, 0);
                       }}
                     >
                       <TabIcon />
@@ -216,16 +259,19 @@ class Frame extends Component {
               ref={content => {
                 this.cardContent = content;
               }}
+              style={{
+                height: "100%"
+              }}
             >
               <CardContent
                 style={
                   this.state.theme === "dark"
                     ? {
-                        padding: "0px",
+                        ...style.cardContent,
                         backgroundColor: "#1a262e"
                       }
                     : {
-                        padding: "0px",
+                        ...style.cardContent,
                         backgroundColor: "#ffffff"
                       }
                 }
@@ -242,12 +288,7 @@ class Frame extends Component {
             color="secondary"
             aria-label="Add"
             variant="outlined"
-            style={{
-              position: "absolute",
-              right: "20px",
-              bottom: "20px",
-              color: "#ffffff"
-            }}
+            style={style.optionsMenuIcon}
             onClick={this.toggleConfigMenu}
           >
             <TuneIcon />

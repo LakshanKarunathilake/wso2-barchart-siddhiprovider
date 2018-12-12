@@ -27,10 +27,8 @@ export class MyWidget extends Widget {
     hasError: false,
     errorMsg: "",
     theme: "dark",
-    width: window.innerWidth - 108,
-    height: window.innerHeight - 108
-    // width: this.props.glContainer.width,
-    // height: this.props.glContainer.height
+    width: window.innerWidth,
+    height: window.innerHeight
   };
 
   componentWillMount() {
@@ -214,7 +212,7 @@ export class MyWidget extends Widget {
 
   render() {
     return (
-      <div>
+      <div style={{ height: "100%" }}>
         {this.renderErrorMessage()}
         {this.state.loading ? this.renderPreLoader() : this.renderBarChart()}
       </div>
