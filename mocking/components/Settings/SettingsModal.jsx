@@ -127,7 +127,9 @@ export class SettingsModal extends Component {
               style={{ marginTop: "10px" }}
               // hidden={widgetConf.configs.pubsub}
             >
-              <Typography variant={"h6"}>Subscribing Model</Typography>
+              <Typography style={{ fontsize: "1.5rem", fontWeight: "bold" }}>
+                Subscribing Model
+              </Typography>
               <FormControl component="fieldset" style={{ marginLeft: "20px" }}>
                 <RadioGroup
                   style={{ display: "inline", justifyContent: "space-between" }}
